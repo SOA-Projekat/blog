@@ -15,14 +15,15 @@ import (
 )
 
 func initDB() *gorm.DB {
-	connectionStr := "host=localhost user=postgres password=super dbname=gorm port=5432 sslmode=disable"
+	connectionStr := "host=localhost user=postgres password=super dbname=blog port=5432 sslmode=disable search_path=public"
+
 	database, err := gorm.Open(postgres.Open(connectionStr), &gorm.Config{})
 	if err != nil {
 		print(err)
 		return nil
 	}
 
-	database.AutoMigrate(&model.Blog{})
+	database.AutoMigrate(&model.BlogPost{})
 	database.AutoMigrate(&model.BlogPostComment{})
 	database.AutoMigrate(&model.BlogPostRating{})
 

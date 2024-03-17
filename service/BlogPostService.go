@@ -10,7 +10,7 @@ type BlogPostService struct {
 	BlogRepo *repo.BlogPostRepository
 }
 
-func (service *BlogPostService) CreateBlog(blog *model.Blog) error {
+func (service *BlogPostService) CreateBlog(blog *model.BlogPost) error {
 	err := service.BlogRepo.CreateBlog(blog)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func (service *BlogPostService) CreateBlog(blog *model.Blog) error {
 	return nil
 }
 
-func (service *BlogPostService) GetAll(page, pageSize int) ([]model.Blog, error) {
+func (service *BlogPostService) GetAll(page, pageSize int) ([]model.BlogPost, error) {
 
 	blogs, err := service.BlogRepo.GetAll(page, pageSize)
 	if err != nil {
@@ -27,7 +27,7 @@ func (service *BlogPostService) GetAll(page, pageSize int) ([]model.Blog, error)
 	return blogs, nil
 }
 
-func (service *BlogPostService) GetById(id string) (*model.Blog, error) {
+func (service *BlogPostService) GetById(id string) (*model.BlogPost, error) {
 	blog, err := service.BlogRepo.GetById(id)
 	if err != nil {
 		return nil, fmt.Errorf("blog with id %s is not found", id)
@@ -35,7 +35,7 @@ func (service *BlogPostService) GetById(id string) (*model.Blog, error) {
 	return blog, nil
 }
 
-func (service *BlogPostService) Update(blog *model.Blog) error {
+func (service *BlogPostService) Update(blog *model.BlogPost) error {
 	err := service.BlogRepo.Update(blog)
 	if err != nil {
 		return err

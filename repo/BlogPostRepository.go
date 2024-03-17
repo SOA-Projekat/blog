@@ -10,13 +10,13 @@ type BlogPostRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *BlogPostRepository) CreateBlog(blog *model.Blog) error {
+func (repo *BlogPostRepository) CreateBlog(blog *model.BlogPost) error {
 	err := repo.DatabaseConnection.Create(blog).Error
 	return err
 }
 
-func (repo *BlogPostRepository) GetById(id string) (*model.Blog, error) {
-	var blog model.Blog
+func (repo *BlogPostRepository) GetById(id string) (*model.BlogPost, error) {
+	var blog model.BlogPost
 	err := repo.DatabaseConnection.First(&blog, "blog_id = ?", id).Error
 	if err != nil {
 		return nil, err
@@ -24,8 +24,8 @@ func (repo *BlogPostRepository) GetById(id string) (*model.Blog, error) {
 	return &blog, nil
 }
 
-func (repo *BlogPostRepository) GetAll(page, pageSize int) ([]model.Blog, error) {
-	var blogs []model.Blog
+func (repo *BlogPostRepository) GetAll(page, pageSize int) ([]model.BlogPost, error) {
+	var blogs []model.BlogPost
 	offset := (page - 1) * pageSize
 
 	// Izvrši upit na bazu podataka za dohvatanje svih blogova sa straničenjem
@@ -36,13 +36,13 @@ func (repo *BlogPostRepository) GetAll(page, pageSize int) ([]model.Blog, error)
 	return blogs, nil
 }
 
-func (repo *BlogPostRepository) Update(blog *model.Blog) error {
+func (repo *BlogPostRepository) Update(blog *model.BlogPost) error {
 	err := repo.DatabaseConnection.Save(blog).Error
 	return err
 }
 
 func (repo *BlogPostRepository) Delete(id string) error {
-	var blog model.Blog
+	var blog model.BlogPost
 	if err := repo.DatabaseConnection.Where("blog_id = ?", id).Delete(&blog).Error; err != nil {
 		return err
 	}

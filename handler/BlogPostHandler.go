@@ -43,7 +43,7 @@ func (handler *BlogPostHandler) GetById(w http.ResponseWriter, r *http.Request) 
 }
 
 func (handler *BlogPostHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var blog model.Blog
+	var blog model.BlogPost
 
 	err := json.NewDecoder(r.Body).Decode(&blog)
 	if err != nil {
@@ -61,7 +61,7 @@ func (handler *BlogPostHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *BlogPostHandler) Update(w http.ResponseWriter, r *http.Request) {
-	var blog model.Blog
+	var blog model.BlogPost
 
 	err := json.NewDecoder(r.Body).Decode(&blog)
 	if err != nil {

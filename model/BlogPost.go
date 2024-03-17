@@ -1,49 +1,58 @@
 package model
 
 import (
-	"fmt"
+	"errors"
 	"time"
 )
 
-// BlogStatus represents the status of a blog.
-type BlogStatus int
+type BlogPostStatus int
 
 const (
-	BlogDraft BlogStatus = iota
-	BlogPublished
-	BlogArchived
-	// BlogReady
+	DRAFT BlogPostStatus = iota
+	PUBLISHED
+	CLOSED
+	ACTIVE
+	FAMOUS
 )
 
-// Blog represents the data structure for a blog
-type Blog struct {
-	BlogID       int        `json:"id"`
-	Title        string     `json:"title"`
-	Description  string     `json:"description"`
-	CreationDate time.Time  `json:"creation_date"`
-	Images       []string   `json:"images,omitempty"`
-	Status       BlogStatus `json:"status"`
+type BlogPost struct {
+	AuthorID     int
+	TourID       int
+	Title        string
+	Description  string
+	CreationDate time.Time
+	//ImageURLs    []string
+	//Comments     []BlogPostComment
+	//Ratings      []BlogPostRating
+	Status BlogPostStatus
 }
 
-// NewBlog creates a new instance of Blog and returns it
-func NewBlog(title, description string, images []string, status BlogStatus) *Blog {
-	return &Blog{
+func NewBlogPost(authorID, tourID int, title, description string, creationDate time.Time, status BlogPostStatus) (*BlogPost, error) {
+	if authorID == 0 {
+		return nil, errors.New("field required: AuthorID")
+	}
+	if title == "" {
+		return nil, errors.New("invalid Title")
+	}
+	if description == "" {
+		return nil, errors.New("invalid Description")
+	}
+	if creationDate.IsZero() {
+		return nil, errors.New("invalid Creation Date")
+	}
+	if status != DRAFT && status != PUBLISHED && status != CLOSED && status != ACTIVE && status != FAMOUS {
+		return nil, errors.New("invalid Post Status")
+	}
+
+	return &BlogPost{
+		AuthorID:     authorID,
+		TourID:       tourID,
 		Title:        title,
 		Description:  description,
-		CreationDate: time.Now(),
-		Images:       images,
-		Status:       status,
-	}
-}
-
-// Example function using NewBlog to create and use a new blog
-func ExampleFunction() {
-	// Creating a new blog
-	newBlog := NewBlog("Example Blog", "This is an example blog that uses Markdown language.", []string{"image1.jpg", "image2.jpg"}, BlogDraft)
-
-	// Using the new blog
-	fmt.Println("New blog created:", newBlog.Title)
-	fmt.Println("Description:", newBlog.Description)
-	fmt.Println("Creation date:", newBlog.CreationDate)
-	fmt.Println("Status:", newBlog.Status)
+		CreationDate: creationDate,
+		//ImageURLs:    imageURLs,
+		//Comments:     comments,
+		//Ratings:      ratings,
+		Status: status,
+	}, nil
 }
