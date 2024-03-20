@@ -11,11 +11,14 @@ type BlogPostCommentRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *BlogPostCommentRepository) AddComment(blogID int, comment *model.BlogPostComment) error {
+func (repo *BlogPostCommentRepository) AddComment(blogID uint, comment *model.BlogPostComment) error {
 	// Postavite vreme kreiranja ako nije postavljeno
 	if comment.CreationTime.IsZero() {
 		comment.CreationTime = time.Now()
 	}
+
+	// Postavite ID bloga
+	comment.BlogID = blogID
 
 	// Dodajte komentar u bazu podataka
 	if err := repo.DatabaseConnection.Create(comment).Error; err != nil {

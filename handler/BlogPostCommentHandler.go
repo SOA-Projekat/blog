@@ -31,7 +31,7 @@ func (handler *BlogPostCommentHandler) AddComment(w http.ResponseWriter, r *http
 		return
 	}
 
-	err = handler.CommentService.AddComment(blogID, commentData.Text, commentData.UserID)
+	err = handler.CommentService.AddComment(uint(blogID), commentData.Text, commentData.UserID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

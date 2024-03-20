@@ -80,9 +80,14 @@ func (handler *BlogPostHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 func (handler *BlogPostHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	blogPostId := params["blogPostId"]
+	blogPostIdStr := params["blogPostId"]
+	blogPostId, err := strconv.ParseUint(blogPostIdStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blogPostId", http.StatusBadRequest)
+		return
+	}
 
-	err := handler.BlogPostService.Delete(blogPostId)
+	err = handler.BlogPostService.Delete(uint(blogPostId))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

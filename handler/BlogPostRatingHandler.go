@@ -34,7 +34,7 @@ func (handler *BlogPostRatingHandler) AddRating(w http.ResponseWriter, r *http.R
 	}
 
 	// Dodajte ocenu
-	err = handler.RatingService.AddRating(blogID, userID, isPositive)
+	err = handler.RatingService.AddRating(uint(blogID), userID, isPositive)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -59,7 +59,7 @@ func (handler *BlogPostRatingHandler) DeleteRating(w http.ResponseWriter, r *htt
 	}
 
 	// Obrišite ocenu
-	err = handler.RatingService.DeleteRating(blogID, userID)
+	err = handler.RatingService.DeleteRating(uint(blogID), userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -10,7 +10,7 @@ type BlogPostCommentService struct {
 	CommentRepo *repo.BlogPostCommentRepository
 }
 
-func (service *BlogPostCommentService) AddComment(blogID int, text string, userID int) error {
+func (service *BlogPostCommentService) AddComment(blogID uint, text string, userID int) error {
 	// Kreirajte novi komentar
 	comment, err := model.NewBlogPostComment(text, userID, time.Now(), time.Now())
 	if err != nil {

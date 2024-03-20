@@ -57,8 +57,8 @@ func main() {
 	router.HandleFunc("/api/blog/blogpost", blogPostHandler.GetAll).Methods("GET")
 	router.HandleFunc("/api/blog/blogpost/{blogPostId}", blogPostHandler.GetById).Methods("GET")
 	router.HandleFunc("/api/blog/blogpost", blogPostHandler.Create).Methods("POST")
-	router.HandleFunc("/api/blog/blogpost/{id}", blogPostHandler.Update).Methods("PUT")
-	router.HandleFunc("/api/blog/blogpost/{id}", blogPostHandler.Delete).Methods("DELETE")
+	router.HandleFunc("/api/blog/blogpost/{blogPostId}", blogPostHandler.Update).Methods("PUT")
+	router.HandleFunc("/api/blog/blogpost/{blogPostId}", blogPostHandler.Delete).Methods("DELETE")
 
 	//routes for blogPostComment
 	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/comments/{userId:[0-9]+}/{creationTime}", blogPostCommentHandler.DeleteComment).Methods("DELETE")

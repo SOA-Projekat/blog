@@ -43,7 +43,7 @@ func (service *BlogPostService) Update(blog *model.BlogPost) error {
 	return nil
 }
 
-func (service *BlogPostService) Delete(id string) error {
+func (service *BlogPostService) Delete(id uint) error {
 	err := service.BlogRepo.Delete(id)
 	if err != nil {
 		return err

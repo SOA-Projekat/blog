@@ -41,7 +41,7 @@ func (repo *BlogPostRepository) Update(blog *model.BlogPost) error {
 	return err
 }
 
-func (repo *BlogPostRepository) Delete(id string) error {
+func (repo *BlogPostRepository) Delete(id uint) error {
 	var blog model.BlogPost
 	if err := repo.DatabaseConnection.Where("blog_id = ?", id).Delete(&blog).Error; err != nil {
 		return err
