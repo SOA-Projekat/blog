@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"database-example/model"
 	"database-example/service"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -9,32 +11,47 @@ import (
 )
 
 type BlogPostRatingHandler struct {
-	RatingService *service.BlogPostRatingService
+	BlogPostRatingService *service.BlogPostRatingService
 }
 
-// AddRating dodaje novu ocenu za dati blog post.
-func (handler *BlogPostRatingHandler) AddRating(w http.ResponseWriter, r *http.Request) {
+func (handler *BlogPostRatingHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	pageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
+
+	blogPostRatings, err := handler.BlogPostRatingService.GetAll(page, pageSize)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(blogPostRatings)
+}
+
+func (handler *BlogPostRatingHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	blogID, err := strconv.Atoi(params["blogID"])
+	blogPostRatingId := params["blogPostRatingId"]
+
+	blogPostRating, err := handler.BlogPostRatingService.GetById(blogPostRatingId)
 	if err != nil {
-		http.Error(w, "Invalid blogID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	userID, err := strconv.Atoi(params["userID"])
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(blogPostRating)
+}
+
+func (handler *BlogPostRatingHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var rating model.BlogPostRating
+
+	err := json.NewDecoder(r.Body).Decode(&rating)
 	if err != nil {
-		http.Error(w, "Invalid userID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	isPositive, err := strconv.ParseBool(params["isPositive"])
-	if err != nil {
-		http.Error(w, "Invalid isPositive value", http.StatusBadRequest)
-		return
-	}
-
-	// Dodajte ocenu
-	err = handler.RatingService.AddRating(uint(blogID), userID, isPositive)
+	err = handler.BlogPostRatingService.CreateRating(&rating)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,23 +60,34 @@ func (handler *BlogPostRatingHandler) AddRating(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusOK)
 }
 
-// DeleteRating briše ocenu za dati blog post na osnovu korisničkog ID-ja.
-func (handler *BlogPostRatingHandler) DeleteRating(w http.ResponseWriter, r *http.Request) {
+func (handler *BlogPostRatingHandler) Update(w http.ResponseWriter, r *http.Request) {
+	var rating model.BlogPostRating
+
+	err := json.NewDecoder(r.Body).Decode(&rating)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = handler.BlogPostRatingService.Update(&rating)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *BlogPostRatingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	blogID, err := strconv.Atoi(params["blogID"])
+	blogPostRatingIdStr := params["blogPostRatingId"]
+	blogPostRatingId, err := strconv.ParseUint(blogPostRatingIdStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid blogID", http.StatusBadRequest)
+		http.Error(w, "Invalid blogPostRatingId", http.StatusBadRequest)
 		return
 	}
 
-	userID, err := strconv.Atoi(params["userID"])
-	if err != nil {
-		http.Error(w, "Invalid userID", http.StatusBadRequest)
-		return
-	}
-
-	// Obrišite ocenu
-	err = handler.RatingService.DeleteRating(uint(blogID), userID)
+	err = handler.BlogPostRatingService.Delete(uint(blogPostRatingId))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

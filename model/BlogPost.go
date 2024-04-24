@@ -18,18 +18,19 @@ const (
 )
 
 type BlogPost struct {
-	BlogID       uint              `gorm:"primaryKey" json:"blog_id"`
-	AuthorID     int               `json:"author_id"`
-	TourID       int               `json:"tour_id"`
-	Title        string            `json:"title"`
-	Description  string            `json:"description"`
-	CreationDate time.Time         `json:"creation_date"`
-	Status       BlogPostStatus    `json:"status"`
-	Comments     []BlogPostComment `json:"comments" gorm:"foreignKey:blog_post_comment_id"` // Dodajte referencu na komentare i odgovarajući spoljni ključ
-	Ratings      []BlogPostRating  `json:"ratings" gorm:"foreignKey:blog_post_rating_id"`
+	BlogID       uint      `gorm:"primaryKey" json:"blog_id"`
+	AuthorID     int       `json:"author_id"`
+	TourID       int       `json:"tour_id"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	CreationDate time.Time `json:"creation_date"`
+	ImageURLs    string    `json:"imageUrl"`
+	//Comments     []BlogPostComment `json:"blog_post_comments" gorm:"foreignKey:comment_id"`
+	//Ratings      []BlogPostRating  `json:"blog_post_ratings" gorm:"foreignKey:rating_id"`
+	Status BlogPostStatus `json:"status"`
 }
 
-func NewBlogPost(blogID, authorID, tourID int, title, description string, creationDate time.Time, status BlogPostStatus) (*BlogPost, error) {
+func NewBlogPost(blogID, authorID, tourID int, title, description string, creationDate time.Time, imageURLs string, status BlogPostStatus) (*BlogPost, error) {
 	if authorID == 0 {
 		return nil, errors.New("field required: AuthorID")
 	}
@@ -53,9 +54,8 @@ func NewBlogPost(blogID, authorID, tourID int, title, description string, creati
 		Title:        title,
 		Description:  description,
 		CreationDate: creationDate,
+		ImageURLs:    imageURLs,
 		Status:       status,
-		Comments:     []BlogPostComment{},
-		Ratings:      []BlogPostRating{},
 	}, nil
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database-example/model"
 	"database-example/service"
 	"encoding/json"
 	"net/http"
@@ -10,54 +11,47 @@ import (
 )
 
 type BlogPostCommentHandler struct {
-	CommentService *service.BlogPostCommentService
+	BlogPostCommentService *service.BlogPostCommentService
 }
 
-func (handler *BlogPostCommentHandler) AddComment(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	blogID, err := strconv.Atoi(params["blogID"])
-	if err != nil {
-		http.Error(w, "Invalid blog ID", http.StatusBadRequest)
-		return
-	}
+func (handler *BlogPostCommentHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	pageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
 
-	var commentData struct {
-		Text   string `json:"text"`
-		UserID int    `json:"user_id"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&commentData); err != nil {
-		http.Error(w, "Failed to decode comment data", http.StatusBadRequest)
-		return
-	}
-
-	err = handler.CommentService.AddComment(uint(blogID), commentData.Text, commentData.UserID)
+	blogComments, err := handler.BlogPostCommentService.GetAll(page, pageSize)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(blogComments)
 }
 
-func (handler *BlogPostCommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
+func (handler *BlogPostCommentHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	commentID, err := strconv.Atoi(params["commentID"])
+	blogPostCommentId := params["blogPostCommentId"]
+
+	blogPostComment, err := handler.BlogPostCommentService.GetById(blogPostCommentId)
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	var commentData struct {
-		Text string `json:"text"`
-	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(blogPostComment)
+}
 
-	if err := json.NewDecoder(r.Body).Decode(&commentData); err != nil {
-		http.Error(w, "Failed to decode comment data", http.StatusBadRequest)
+func (handler *BlogPostCommentHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var comment model.BlogPostComment
+
+	err := json.NewDecoder(r.Body).Decode(&comment)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = handler.CommentService.UpdateComment(commentID, commentData.Text)
+	err = handler.BlogPostCommentService.CreateComment(&comment)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -66,15 +60,34 @@ func (handler *BlogPostCommentHandler) UpdateComment(w http.ResponseWriter, r *h
 	w.WriteHeader(http.StatusOK)
 }
 
-func (handler *BlogPostCommentHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	commentID, err := strconv.Atoi(params["commentID"])
+func (handler *BlogPostCommentHandler) Update(w http.ResponseWriter, r *http.Request) {
+	var comment model.BlogPostComment
+
+	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
-		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = handler.CommentService.DeleteComment(commentID)
+	err = handler.BlogPostCommentService.Update(&comment)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (handler *BlogPostCommentHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	blogPostCommentIdStr := params["blogPostCommentId"]
+	blogPostCommentId, err := strconv.ParseUint(blogPostCommentIdStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blogPostId", http.StatusBadRequest)
+		return
+	}
+
+	err = handler.BlogPostCommentService.Delete(uint(blogPostCommentId))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

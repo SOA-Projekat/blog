@@ -43,13 +43,13 @@ func main() {
 
 	// blogPostComment
 	blogPostCommentRepo := &repo.BlogPostCommentRepository{DatabaseConnection: database}
-	blogPostCommentService := &service.BlogPostCommentService{CommentRepo: blogPostCommentRepo}
-	blogPostCommentHandler := &handler.BlogPostCommentHandler{CommentService: blogPostCommentService}
+	blogPostCommentService := &service.BlogPostCommentService{BlogCommentRepo: blogPostCommentRepo}
+	blogPostCommentHandler := &handler.BlogPostCommentHandler{BlogPostCommentService: blogPostCommentService}
 
 	// blogPostRating
 	blogPostRatingRepo := &repo.BlogPostRatingRepository{DatabaseConnection: database}
 	blogPostRatingService := &service.BlogPostRatingService{RatingRepo: blogPostRatingRepo}
-	blogPostRatingHandler := &handler.BlogPostRatingHandler{RatingService: blogPostRatingService}
+	blogPostRatingHandler := &handler.BlogPostRatingHandler{BlogPostRatingService: blogPostRatingService}
 
 	router := mux.NewRouter().StrictSlash(true)
 
@@ -61,13 +61,15 @@ func main() {
 	router.HandleFunc("/api/blog/blogpost/{blogPostId}", blogPostHandler.Delete).Methods("DELETE")
 
 	//routes for blogPostComment
-	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/comments/{userId:[0-9]+}/{creationTime}", blogPostCommentHandler.DeleteComment).Methods("DELETE")
-	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/comments", blogPostCommentHandler.UpdateComment).Methods("PUT")
-	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/comments", blogPostCommentHandler.AddComment).Methods("POST")
+	//router.HandleFunc("/api/blog/blogpost/comments", blogPostCommentHandler.GetAll).Methods("GET")
+	//router.HandleFunc("/api/blog/blogpost/{blogPostCommentId}", blogPostCommentHandler.GetById).Methods("GET")
+	router.HandleFunc("/api/blog/blogpost/{blogPostCommentId}/comments", blogPostCommentHandler.Create).Methods("POST")
+	router.HandleFunc("/api/blog/blogpost/{blogPostCommentId}/comments", blogPostCommentHandler.Update).Methods("PUT")
+	router.HandleFunc("/api/blog/blogpost/{blogPostCommentId}/comments/{userId}/{creationTime}", blogPostCommentHandler.Delete).Methods("DELETE")
 
 	//routes for blogPostRating
-	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/ratings/{userId:[0-9]+}", blogPostRatingHandler.DeleteRating).Methods("DELETE")
-	router.HandleFunc("/api/blog/blogpost/{blogPostId:[0-9]+}/ratings", blogPostRatingHandler.AddRating).Methods("POST")
+	router.HandleFunc("/api/blog/blogpost/{blogPostRatingId}/ratings", blogPostRatingHandler.Create).Methods("POST")
+	router.HandleFunc("/api/blog/blogpost/{blogPostRatingId}/ratings/{userId}", blogPostRatingHandler.Delete).Methods("DELETE")
 
 	permitedHeaders := handlers.AllowedHeaders([]string{"Requested-With", "Content-Type", "Authorization"})
 	permitedOrigins := handlers.AllowedOrigins([]string{"*"})

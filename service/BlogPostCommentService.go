@@ -3,51 +3,50 @@ package service
 import (
 	"database-example/model"
 	"database-example/repo"
-	"time"
+	"fmt"
 )
 
 type BlogPostCommentService struct {
-	CommentRepo *repo.BlogPostCommentRepository
+	BlogCommentRepo *repo.BlogPostCommentRepository
 }
 
-func (service *BlogPostCommentService) AddComment(blogID uint, text string, userID int) error {
-	// Kreirajte novi komentar
-	comment, err := model.NewBlogPostComment(text, userID, time.Now(), time.Now())
+func (service *BlogPostCommentService) CreateComment(comment *model.BlogPostComment) error {
+	err := service.BlogCommentRepo.CreateComment(comment)
 	if err != nil {
 		return err
 	}
-
-	// Dodajte komentar pomoću repozitorijuma
-	err = service.CommentRepo.AddComment(blogID, comment)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (service *BlogPostCommentService) UpdateComment(commentID int, text string) error {
-	// Kreirajte ažurirani komentar
-	updatedComment, err := model.NewBlogPostComment(text, 0, time.Time{}, time.Now())
+func (service *BlogPostCommentService) GetAll(page, pageSize int) ([]model.BlogPostComment, error) {
+
+	comments, err := service.BlogCommentRepo.GetAll(page, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
+
+func (service *BlogPostCommentService) GetById(id string) (*model.BlogPostComment, error) {
+	comment, err := service.BlogCommentRepo.GetById(id)
+	if err != nil {
+		return nil, fmt.Errorf("comment with id %s is not found", id)
+	}
+	return comment, nil
+}
+
+func (service *BlogPostCommentService) Update(comment *model.BlogPostComment) error {
+	err := service.BlogCommentRepo.Update(comment)
 	if err != nil {
 		return err
 	}
-
-	// Ažurirajte komentar pomoću repozitorijuma
-	err = service.CommentRepo.UpdateComment(commentID, updatedComment)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (service *BlogPostCommentService) DeleteComment(commentID int) error {
-	// Obrišite komentar pomoću repozitorijuma
-	err := service.CommentRepo.DeleteComment(commentID)
+func (service *BlogPostCommentService) Delete(id uint) error {
+	err := service.BlogCommentRepo.Delete(id)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

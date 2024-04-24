@@ -2,7 +2,6 @@ package repo
 
 import (
 	"database-example/model"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -11,53 +10,41 @@ type BlogPostCommentRepository struct {
 	DatabaseConnection *gorm.DB
 }
 
-func (repo *BlogPostCommentRepository) AddComment(blogID uint, comment *model.BlogPostComment) error {
-	// Postavite vreme kreiranja ako nije postavljeno
-	if comment.CreationTime.IsZero() {
-		comment.CreationTime = time.Now()
-	}
-
-	// Postavite ID bloga
-	comment.BlogID = blogID
-
-	// Dodajte komentar u bazu podataka
-	if err := repo.DatabaseConnection.Create(comment).Error; err != nil {
-		return err
-	}
-
-	return nil
+func (repo *BlogPostCommentRepository) CreateComment(comment *model.BlogPostComment) error {
+	err := repo.DatabaseConnection.Create(comment).Error
+	return err
 }
 
-func (repo *BlogPostCommentRepository) UpdateComment(commentID int, updatedComment *model.BlogPostComment) error {
-	// Pronađite komentar sa datim ID-om
-	var existingComment model.BlogPostComment
-	if err := repo.DatabaseConnection.First(&existingComment, commentID).Error; err != nil {
-		return err
+func (repo *BlogPostCommentRepository) GetById(id string) (*model.BlogPostComment, error) {
+	var comment model.BlogPostComment
+	err := repo.DatabaseConnection.First(&comment, "comment_id = ?", id).Error
+	if err != nil {
+		return nil, err
 	}
-
-	// Ažurirajte polja komentara
-	existingComment.Text = updatedComment.Text
-	existingComment.LastUpdatedTime = time.Now() // Postavite vreme poslednjeg ažuriranja na trenutno vreme
-
-	// Ažurirajte komentar u bazi podataka
-	if err := repo.DatabaseConnection.Save(&existingComment).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return &comment, nil
 }
 
-func (repo *BlogPostCommentRepository) DeleteComment(commentID int) error {
-	// Pronađite komentar sa datim ID-om
-	var existingComment model.BlogPostComment
-	if err := repo.DatabaseConnection.First(&existingComment, commentID).Error; err != nil {
+func (repo *BlogPostCommentRepository) GetAll(page, pageSize int) ([]model.BlogPostComment, error) {
+	var comments []model.BlogPostComment
+	offset := (page - 1) * pageSize
+
+	// Izvrši upit na bazu podataka za dohvatanje svih blogova sa straničenjem
+	err := repo.DatabaseConnection.Offset(offset).Limit(pageSize).Find(&comments).Error
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
+
+func (repo *BlogPostCommentRepository) Update(comment *model.BlogPostComment) error {
+	err := repo.DatabaseConnection.Save(comment).Error
+	return err
+}
+
+func (repo *BlogPostCommentRepository) Delete(id uint) error {
+	var comment model.BlogPostComment
+	if err := repo.DatabaseConnection.Where("comment_id = ?", id).Delete(&comment).Error; err != nil {
 		return err
 	}
-
-	// Obrišite komentar iz baze podataka
-	if err := repo.DatabaseConnection.Delete(&existingComment).Error; err != nil {
-		return err
-	}
-
 	return nil
 }
