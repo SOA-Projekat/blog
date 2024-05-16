@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+option go_package = "proto/blog";
+
+// Ovo bi trebalo biti na početku vaše .proto datoteke
+enum BlogPostStatus {
+  DRAFT = 0;
+  PUBLISHED = 1;
+  CLOSED = 2;
+  ACTIVE = 3;
+  FAMOUS = 4;
+}
+
+
+service BlogService {
+    rpc GetBlog(GetBlogRequest) returns (GetBlogResponse) {}
+    rpc UpsertBlog(UpsertBlogRequest) returns (UpsertBlogResponse) {}
+    rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse) {}
+}
+
+message BlogPost {
+    uint32 blog_id = 1;
+    int32 author_id = 2;
+    int32 tour_id = 3;
+    string title = 4;
+    string description = 5;
+    google.protobuf.Timestamp creation_date = 6;
+    string image_urls = 7;
+    BlogPostStatus status = 8;
+}
+
+message GetBlogRequest {
+    uint32 blog_id = 1;
+}
+
+message GetBlogResponse {
+    BlogPost blog_post = 1;
+}
+
+message UpsertBlogRequest {
+    BlogPost blog_post = 1;
+}
+
+message UpsertBlogResponse {
+    BlogPost blog_post = 1;
+}
+
+message DeleteBlogRequest {
+    uint32 blog_id = 1;
+}
+
+message DeleteBlogResponse {
+}
